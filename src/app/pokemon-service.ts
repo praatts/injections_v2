@@ -66,3 +66,14 @@ export class PokemonService {
     return this.pokemons;
   }
 }
+
+/*
+injecció de dependencies
+service
+observable
+operadors rxjs (map, observable)
+.pipe() de rxjs
+el .map() rxjs vs .map d'array
+HttpClient(get)
+
+*/
