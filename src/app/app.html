@@ -1,0 +1,48 @@
+<div class="container">
+  <!-- Títol de l'aplicació -->
+  <h1>Pokédex</h1>
+
+  <!-- Secció de Pokemons sense Like -->
+  <section class="pokemon-section">
+    <h2>Pokemons Disponibles</h2>
+    <button (click)="demoSenseTransformar()">Veure pokémons</button>
+    <button (click)="demoAmbTransformar()">Veure dades transformades (AMB pipe/map)</button>
+    
+    <!-- Grid de Pokemons utilitzant @for per iterar sobre la llista -->
+    <div class="pokemon-grid">
+      <!-- @for per recórrer tots els Pokemons que NO tenen like (liked === false) -->
+      @for (pokemon of pokemons; track pokemon.id) {
+        <!-- @if per mostrar només els que no tenen like -->
+        @if (!pokemon.liked) {
+          <!-- Component Pokemon amb:
+               - [pokemon]: property binding per passar l'objecte pokemon com a input
+               - (pokemonChanged): event binding per capturar l'event del component fill -->
+          <app-pokemon 
+            [pokemon]="pokemon" 
+            (pokemonChanged)="updatePokemon($event)">
+          </app-pokemon>
+        }
+      }
+    </div>
+  </section>
+
+  <!-- Secció de Pokemons amb Like -->
+  <section class="pokemon-section">
+    <h2>Pokemons amb Like</h2>
+    
+    <!-- Grid de Pokemons amb Like utilitzant @for -->
+    <div class="pokemon-grid">
+      <!-- @for per recórrer tots els Pokemons que tenen like (liked === true) -->
+      @for (pokemon of pokemons; track pokemon.id) {
+        <!-- @if per mostrar només els que tenen like -->
+        @if (pokemon.liked) {
+          <!-- Component Pokemon amb property i event binding -->
+          <app-pokemon 
+            [pokemon]="pokemon" 
+            (pokemonChanged)="updatePokemon($event)">
+          </app-pokemon>
+        }
+      }
+    </div>
+  </section>
+</div>

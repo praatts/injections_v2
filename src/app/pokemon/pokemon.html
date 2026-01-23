@@ -1,0 +1,23 @@
+<!-- Targeta del Pokemon -->
+<div class="pokemon-card">
+  <!-- Imatge del Pokemon utilitzant property binding amb funcions input() -->
+  <img 
+        [src]="pokemon().url" 
+        [alt]="pokemon().name" 
+        class="pokemon-image"
+    >
+  
+  <!-- Nom del Pokemon (utilitzem parèntesis perquè és una funció input) -->
+  <h3>{{ pokemon().name }} </h3>
+  
+  <!-- Botó que canvia segons l'estat de liked -->
+  <!-- Event binding per capturar el clic del botó -->
+  <button (click)="onToggleLike()" class="btn-toggle">
+    <!-- @if per mostrar Like o Dislike segons el valor de pokemon().liked -->
+    @if (pokemon().liked) {
+      Dislike
+    } @else {
+      Like
+    }
+  </button>
+</div>
