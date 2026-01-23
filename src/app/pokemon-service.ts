@@ -36,7 +36,7 @@ export class PokemonService {
           return {
             id: index,
             name: p.name,
-            url: p.url,
+            url: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${index+1}.png`,
             liked: false
           };
         });
