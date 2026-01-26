@@ -23,9 +23,9 @@ export class PokemonService {
     })
   }
 
-  demoAmbTransformacions(): Observable<PokemonInterface[]> {
+  getPokemons(): Observable<PokemonInterface[]> {
     console.log('Petició API:');
-    return this.httpClient.get<any>('https://pokeapi.co/api/v2/pokemon?limit=5').pipe(
+    return this.httpClient.get<any>('https://pokeapi.co/api/v2/pokemon?limit=20').pipe(
       map((response) => {
         console.log('PAS 1 - Rebem resposta: ', response);
         console.log('PAS 2 - Extreure els resultats', response.results)
@@ -36,7 +36,7 @@ export class PokemonService {
           return {
             id: index,
             name: p.name,
-            url: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${index+1}.png`,
+            url: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${index + 1}.png`,
             liked: false
           };
         });
@@ -47,23 +47,25 @@ export class PokemonService {
     );
   }
 
-  /*
-  observable.pipe(
-    operador1(),
-    op2(),
-    op3()
-  )
 
-  El pipe permet aplicar operadors Rxjs (Reactive extension JS) a l'observable, i el
-  map() permet transformar les dades que arriben de l'API
-  */
   updatePokemons(event: PokemonInterface) {
     let idx = this.pokemons.findIndex((value: PokemonInterface) => value.id === event.id);
     this.pokemons[idx] = event;
   }
 
-  getPokemons(): PokemonInterface[] {
-    return this.pokemons;
+  setPokemons(pokemons: PokemonInterface[]): void {
+    this.pokemons = pokemons;
+  }
+
+  searchPokemon(name: string): PokemonInterface | null {
+    if (name.length < 2) {
+      return null;
+    }
+    //Buscar a l'array local de pokemons
+    const found = this.pokemons.find(p => p.name.toLocaleLowerCase().includes(name.toLocaleLowerCase())
+    );
+
+    return found || null;
   }
 }
 
@@ -76,4 +78,12 @@ operadors rxjs (map, observable)
 el .map() rxjs vs .map d'array
 HttpClient(get)
 
+observable.pipe(
+  operador1(),
+  op2(),
+  op3()
+)
+
+El pipe permet aplicar operadors Rxjs (Reactive extension JS) a l'observable, i el
+map() permet transformar les dades que arriben de l'API
 */
