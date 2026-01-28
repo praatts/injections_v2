@@ -12,27 +12,13 @@ export class PokemonService {
   private apiUrl = 'https://pokeapi.co/api/v2';
 
   constructor(private httpClient: HttpClient) {
-
-  }
-
-  demoSenseTransformar() { //Get simple, sense transformar dades per l'array de pokemons (seguint estructura de la interfície)
-    this.httpClient.get<any>('https://pokeapi.co/api/v2/pokemon?limit=5').subscribe(response => {
-      console.log('Dades originals de la pokeAPI:', response);
-      console.log('Només l\'array results:', response.results);
-      console.log('Primer pokemon', response.results[0])
-    })
   }
 
   getPokemons(): Observable<PokemonInterface[]> {
     console.log('Petició API:');
     return this.httpClient.get<any>('https://pokeapi.co/api/v2/pokemon?limit=20').pipe(
       map((response) => {
-        console.log('PAS 1 - Rebem resposta: ', response);
-        console.log('PAS 2 - Extreure els resultats', response.results)
-
         const pokemonsTransformats = response.results.map((p: any, index: number) => {
-          console.log(`PAS 3.${index} - Transformació a : ${p.name}`);
-
           return {
             id: index,
             name: p.name,
@@ -40,8 +26,6 @@ export class PokemonService {
             liked: false
           };
         });
-
-        console.log('PAS 4 - Resultat FINAL: (array PokemonInterface[]', pokemonsTransformats);
         return pokemonsTransformats;
       })
     );
@@ -62,8 +46,7 @@ export class PokemonService {
       return null;
     }
     //Buscar a l'array local de pokemons
-    const found = this.pokemons.find(p => p.name.toLocaleLowerCase().includes(name.toLocaleLowerCase())
-    );
+    const found = this.pokemons.find(p => p.name.toLocaleLowerCase().includes(name.toLocaleLowerCase()));
 
     return found || null;
   }

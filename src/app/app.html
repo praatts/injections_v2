@@ -1,6 +1,28 @@
 <div class="container">
   <!-- Títol de l'aplicació -->
   <h1>Pokédex</h1>
+  <div>
+    <form [formGroup]="searchForm">
+      <input type="text" formControlName="searchTerm" placeholder="Cerca pokemon">
+      @if (searchTermControl?.invalid && searchTermControl?.touched){
+        <p>Mínim 2 caràcters</p>
+      }
+      
+      @if(searching) {
+        <p>Buscant...</p>
+      }
+
+      @if(searchResult){
+        <div>
+          <h3>Resultat de la cerca: </h3>
+          <app-pokemon [pokemon]="searchResult"></app-pokemon>
+        </div>
+      }@else if(searchTermControl?.valid && !searching && searchTermControl?.value) {
+        <p>No s'ha trobat cap pokemon</p>
+
+      }
+    </form>
+  </div>
 
   <!-- Secció de Pokemons sense Like -->
   @if (loading) {
@@ -14,9 +36,6 @@
   } @else {
   <section class="pokemon-section">
     <h2>Pokemons Disponibles</h2>
-    <!-- <button (click)="demoSenseTransformar()">Veure pokémons</button> -->
-    <!--<button (click)="demoAmbTransformar()">Veure dades transformades (AMB pipe/map)</button> -->
-
     <!-- Grid de Pokemons utilitzant @for per iterar sobre la llista -->
     <div class="pokemon-grid">
       <!-- @for per recórrer tots els Pokemons que NO tenen like (liked === false) -->

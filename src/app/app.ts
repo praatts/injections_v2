@@ -3,11 +3,12 @@ import { RouterOutlet } from '@angular/router';
 import { Pokemon } from './pokemon/pokemon';
 import { PokemonService } from './pokemon-service';
 import { PokemonInterface } from './pokemon';
-import { FormBuilder, Validators } from '@angular/forms';
+import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
+import { debounceTime, distinctUntilChanged } from 'rxjs';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, Pokemon],
+  imports: [RouterOutlet, Pokemon, ReactiveFormsModule],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
@@ -22,12 +23,12 @@ export class App {
   //Declarar el formGroup
   searchForm;
   searchResult: PokemonInterface | null = null;
-  searching = true;
+  searching = false;
 
   constructor(private pokemonService : PokemonService, private fb: FormBuilder) {
     this.searchForm = this.fb.group({
       searchTerm: ['', [Validators.minLength(2)]]
-    })
+    });
   }
 
   ngOnInit() {
@@ -46,21 +47,41 @@ export class App {
       }
     })
 
+    //Cerca reactiva amb rxjs
+    this.searchForm.get('searchTerm')!.valueChanges.pipe(
+      debounceTime(500), //espera 500ms segons sense canvis abans d'executar
+      distinctUntilChanged() // només emet si el valor es diferent a l'anterior
+    ).subscribe({
+      next: (term : string | null) =>{
+        if (!term || term.length < 2) {
+          this.searching = false;
+          this.searchResult = null;
+          return;
+        }
+
+        this.searching = true;
+
+        //Cerca LOCAL (sincrona)
+        this.searchResult = this.pokemonService.searchPokemon(term);
+
+        //desactivar indicador
+        this.searching = false;
+
+        console.log('Cercant: ', term);
+        console.log('Resultat: ', this.searchResult)
+      }
+    });
+  }
+
+  get searchTermControl(){
+    return this.searchForm.get('searchTerm');
+  }
+
+  get isSearchValid(){
+    return this.searchTermControl?.valid;
   }
 
   updatePokemon(event: PokemonInterface) {
     this.pokemonService.updatePokemons(event);
   }
-
-  demoSenseTransformar() {
-    this.pokemonService.demoSenseTransformar();
-  }
-
-  /*demoAmbTransformar() {
-    this.pokemonService.demoAmbTransformacions().subscribe(
-      pokemons => {
-        console.log('PAS 5 - El component rep: ', pokemons);
-        this.pokemons = pokemons;
-      });
-  }*/
 }
