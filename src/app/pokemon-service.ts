@@ -47,7 +47,7 @@ export class PokemonService {
     const currentFavorites = this.favoritesSubject.value;
 
     //filtrar(crear un array sense aquest pokemon)
-    const updatedFavorites = currentFavorites.filter(p => p.id === pokemonId);
+    const updatedFavorites = currentFavorites.filter(p => p.id !== pokemonId);
 
     //marquem no liked
     const pokemon = this.pokemons.find(p => p.id === pokemonId);
