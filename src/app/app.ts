@@ -5,10 +5,11 @@ import { PokemonService } from './pokemon-service';
 import { PokemonInterface } from './pokemon';
 import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
 import { debounceTime, distinctUntilChanged, of, switchMap } from 'rxjs';
+import { AsyncPipe } from '@angular/common';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, Pokemon, ReactiveFormsModule],
+  imports: [Pokemon, ReactiveFormsModule, AsyncPipe, RouterOutlet],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
@@ -25,10 +26,13 @@ export class App {
   searchResult: PokemonInterface | null = null;
   searching = false;
 
+  favorites$;
+
   constructor(private pokemonService: PokemonService, private fb: FormBuilder) {
     this.searchForm = this.fb.group({
       searchTerm: ['', [Validators.minLength(2)]]
     });
+    this.favorites$ = this.pokemonService.favorites$;
   }
 
   ngOnInit() {
@@ -84,6 +88,13 @@ export class App {
   }
 
   updatePokemon(event: PokemonInterface) {
-    this.pokemonService.updatePokemons(event);
+    console.log ('update pokemon cridant, liked', event.liked)
+
+    if (event.liked) {
+      //si té liked l'afegirem
+      this.pokemonService.addToFavourites(event);
+    } else {
+      this.pokemonService.removeFromFavourites(event.id);
+    }
   }
 }

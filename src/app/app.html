@@ -1,74 +1,104 @@
 <div class="container">
   <!-- Títol de l'aplicació -->
   <h1>Pokédex</h1>
-  <div>
-    <h3>CERCA AMB HTTP (PokeAPI)</h3>
+  
+  <!-- <button (click)="demoSenseTransformar()">
+    Veure dades originals (sense transformar)
+  </button>
+  <br>
+  <br>
+  <button (click)="demoAmbTransformar()">
+    Veure dades transformades (AMB pipe/map)
+  </button> -->
+
+  <!-- Cerca amb FormGroup -->
+  <div class="search-box">
     <form [formGroup]="searchForm">
-      <input type="text" formControlName="searchTerm" placeholder="Cerca pokemon">
-      @if (searchTermControl?.invalid && searchTermControl?.touched){
-        <p>Mínim 2 caràcters</p>
-      }
+      <input 
+        type="text" 
+        formControlName="searchTerm"
+        placeholder="Cerca pokémon (mínim 2 lletres)..."
+        class="search-input">
       
-      @if(searching) {
-        <p>Buscant...</p>
-      }
-
-      @if(searchResult){
-        <div>
-          <h3>Resultat de la cerca: </h3>
-          <app-pokemon [pokemon]="searchResult"></app-pokemon>
-        </div>
-      }@else if(searchTermControl?.valid && !searching && searchTermControl?.value) {
-        <p>No s'ha trobat cap pokemon</p>
-
+      <!-- Mostrar error de validació -->
+      @if (searchTermControl?.invalid && searchTermControl?.touched) {
+        <p class="error-msg">Mínim 2 caràcters</p>
       }
     </form>
+    
+    @if (searching) {
+      <p class="searching">Cercant...</p>
+    }
+    
+    @if (searchResult) {
+      <div class="result">
+        <h3>Resultat:</h3>
+        <app-pokemon [pokemon]="searchResult"></app-pokemon>
+      </div>
+    } @else if (searchTermControl?.valid && !searching && searchTermControl?.value) {
+      <p class="no-result">No s'ha trobat cap Pokémon amb aquest nom</p>
+    }
   </div>
 
-  <!-- Secció de Pokemons sense Like -->
   @if (loading) {
-  <div>
-    <p>Carregant pokemons</p>
+  <div class="loading">
+    <p>Carregant pokémons...</p>
   </div>
   } @else if (error) {
-  <div>
-    <p> {{error}}</p>
+  <div class="error">
+    <p>{{ error }}</p>
   </div>
   } @else {
-  <section class="pokemon-section">
-    <h2>Pokemons Disponibles</h2>
-    <!-- Grid de Pokemons utilitzant @for per iterar sobre la llista -->
-    <div class="pokemon-grid">
-      <!-- @for per recórrer tots els Pokemons que NO tenen like (liked === false) -->
-      @for (pokemon of pokemons; track pokemon.id) {
-      <!-- @if per mostrar només els que no tenen like -->
-      @if (!pokemon.liked) {
-      <!-- Component Pokemon amb:
-               - [pokemon]: property binding per passar l'objecte pokemon com a input
-               - (pokemonChanged): event binding per capturar l'event del component fill -->
-      <app-pokemon [pokemon]="pokemon" (pokemonChanged)="updatePokemon($event)">
-      </app-pokemon>
-      }
-      }
-    </div>
-  </section>
+  <!-- Secció de Pokemons sense Like -->
+    <section class="pokemon-section">
+      <h2>Pokemons Disponibles</h2>
+      <div class="pokemon-grid">
+        @for (pokemon of pokemons; track pokemon.id) {
+        @if (!pokemon.liked) {
+          <app-pokemon 
+          [pokemon]="pokemon" 
+          (pokemonChanged)="updatePokemon($event)">
+          </app-pokemon>
+          }
+        }
+      </div>
+    </section>
 
-  <!-- Secció de Pokemons amb Like -->
-  <section class="pokemon-section">
-    <h2>Pokemons amb Like</h2>
+    <!-- Favorits amb async pipe i BehaviorSubject -->
+    <section class="pokemon-section">
+      <h2>Els meus Favorits</h2>
+      
+      @if (favorites$ | async; as favorites) {
+        @if (favorites.length === 0) {
+          <p class="empty">No tens favorits encara </p>
+        } @else {
+          <div>
+            <p>Tens {{favorites.length}} favorits</p>
+          </div>
+          <div class="pokemon-grid">
+            @for (fav of favorites; track fav.id) {
+              <app-pokemon 
+                [pokemon]="fav"
+                (pokemonChanged)="updatePokemon($event)">
+              </app-pokemon>
+            }
+          </div>
+        }
+      }
+    </section>
 
-    <!-- Grid de Pokemons amb Like utilitzant @for -->
-    <div class="pokemon-grid">
-      <!-- @for per recórrer tots els Pokemons que tenen like (liked === true) -->
-      @for (pokemon of pokemons; track pokemon.id) {
-      <!-- @if per mostrar només els que tenen like -->
-      @if (pokemon.liked) {
-      <!-- Component Pokemon amb property i event binding -->
-      <app-pokemon [pokemon]="pokemon" (pokemonChanged)="updatePokemon($event)">
-      </app-pokemon>
-      }
-      }
-    </div>
-  </section>
+    <!-- Secció de Pokemons amb Like -->
+     <!--
+    <section class="pokemon-section">
+      <h2>Pokemons amb Like</h2>
+      <div class="pokemon-grid">
+        @for (pokemon of pokemons; track pokemon.id) {
+        @if (pokemon.liked) {
+          <app-pokemon [pokemon]="pokemon" (pokemonChanged)="updatePokemon($event)">
+          </app-pokemon>
+          }
+        }
+      </div>
+    </section>-->
   }
 </div>
