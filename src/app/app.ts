@@ -4,7 +4,7 @@ import { Pokemon } from './pokemon/pokemon';
 import { PokemonService } from './pokemon-service';
 import { PokemonInterface } from './pokemon';
 import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
-import { debounceTime, distinctUntilChanged } from 'rxjs';
+import { debounceTime, distinctUntilChanged, of, switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -15,7 +15,7 @@ import { debounceTime, distinctUntilChanged } from 'rxjs';
 export class App {
   protected readonly title = signal('injections_v2');
 
-  pokemons : PokemonInterface[] = [];
+  pokemons: PokemonInterface[] = [];
   pokemonsProva: PokemonInterface[] = [];
   loading = false;
   error = '';
@@ -25,7 +25,7 @@ export class App {
   searchResult: PokemonInterface | null = null;
   searching = false;
 
-  constructor(private pokemonService : PokemonService, private fb: FormBuilder) {
+  constructor(private pokemonService: PokemonService, private fb: FormBuilder) {
     this.searchForm = this.fb.group({
       searchTerm: ['', [Validators.minLength(2)]]
     });
@@ -34,7 +34,7 @@ export class App {
   ngOnInit() {
     this.loading = true;
     this.pokemonService.getPokemons().subscribe({
-      next: (data: PokemonInterface []) => {
+      next: (data: PokemonInterface[]) => {
         console.log("Component rep: ", data);
         this.pokemons = data;
         this.pokemonService.setPokemons(data);
@@ -50,34 +50,36 @@ export class App {
     //Cerca reactiva amb rxjs
     this.searchForm.get('searchTerm')!.valueChanges.pipe(
       debounceTime(500), //espera 500ms segons sense canvis abans d'executar
-      distinctUntilChanged() // només emet si el valor es diferent a l'anterior
-    ).subscribe({
-      next: (term : string | null) =>{
+      distinctUntilChanged(), // només emet si el valor es diferent a l'anterior
+      switchMap(term => {
+        //Si es cur o buit retornar observable amb null
         if (!term || term.length < 2) {
           this.searching = false;
-          this.searchResult = null;
-          return;
+          return of(null);
         }
-
         this.searching = true;
 
-        //Cerca LOCAL (sincrona)
-        this.searchResult = this.pokemonService.searchPokemon(term);
-
-        //desactivar indicador
+        return this.pokemonService.searchPokemon(term);
+      })
+    ).subscribe({
+      next: (result) => {
+        this.searchResult = result;
         this.searching = false;
-
-        console.log('Cercant: ', term);
-        console.log('Resultat: ', this.searchResult)
+        console.log('Resultat final', result);
+      },
+        error: (err) => {
+        console.log('Error: ', err);
+        this.searching = false;
+        this.searchResult = null;
       }
     });
   }
 
-  get searchTermControl(){
+  get searchTermControl() {
     return this.searchForm.get('searchTerm');
   }
 
-  get isSearchValid(){
+  get isSearchValid() {
     return this.searchTermControl?.valid;
   }
 

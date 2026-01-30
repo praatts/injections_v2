@@ -2,6 +2,7 @@
   <!-- Títol de l'aplicació -->
   <h1>Pokédex</h1>
   <div>
+    <h3>CERCA AMB HTTP (PokeAPI)</h3>
     <form [formGroup]="searchForm">
       <input type="text" formControlName="searchTerm" placeholder="Cerca pokemon">
       @if (searchTermControl?.invalid && searchTermControl?.touched){

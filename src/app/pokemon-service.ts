@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { PokemonInterface } from './pokemon';
 import { HttpClient } from '@angular/common/http';
-import { map, Observable } from 'rxjs';
+import { catchError, map, Observable, of } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -41,14 +41,27 @@ export class PokemonService {
     this.pokemons = pokemons;
   }
 
-  searchPokemon(name: string): PokemonInterface | null {
+  searchPokemon(name: string): Observable<PokemonInterface | null> {
     if (name.length < 2) {
-      return null;
+      return of(null);
     }
-    //Buscar a l'array local de pokemons
-    const found = this.pokemons.find(p => p.name.toLocaleLowerCase().includes(name.toLocaleLowerCase()));
+    console.log('Cercant a la PokeAPI: ', name)
 
-    return found || null;
+    return this.httpClient.get<any>(`${this.apiUrl}/pokemon/${name.toLowerCase()}`).pipe(
+      map(p => {
+        console.log('Pokemon trobat a l\'API', p.name);
+        return {
+          id: p.id,
+          name: p.name,
+          url: p.sprites.front_default,
+          liked: false
+        };
+      }),
+      catchError(error => {
+        console.log('Pokemon NO trobat');
+        return of(null);
+      })
+    )
   }
 }
 
