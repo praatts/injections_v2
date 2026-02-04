@@ -1,1 +1,60 @@
-<p>pokemon-list works!</p>
+<div class="container">
+    <!-- Títol de l'aplicació -->
+    <div class="header">
+        <h1>Pokédex</h1>
+        <a routerLink="/favorits" class="btn-favorites">
+            if (favorites$ | async; as favorites) {
+            Els meus favorits ({{favorites.length}})
+            } @else {
+            Els meus favorits (0)
+            }
+        </a>
+    </div>
+    <div class="search-box">
+        <form [formGroup]="searchForm">
+            <input type="text" formControlName="searchTerm" placeholder="Cerca pokémon (mínim 2 lletres)..."
+                class="search-input">
+
+            <!-- Mostrar error de validació -->
+            @if (searchTermControl?.invalid && searchTermControl?.touched) {
+            <p class="error-msg">Mínim 2 caràcters</p>
+            }
+        </form>
+
+        @if (searching) {
+        <p class="searching">Cercant...</p>
+        }
+
+        @if (searchResult) {
+        <div class="result">
+            <h3>Resultat:</h3>
+            <app-pokemon [pokemon]="searchResult"></app-pokemon>
+        </div>
+        } @else if (searchTermControl?.valid && !searching && searchTermControl?.value) {
+        <p class="no-result">No s'ha trobat cap Pokémon amb aquest nom</p>
+        }
+    </div>
+
+    @if (loading) {
+    <div class="loading">
+        <p>Carregant pokémons...</p>
+    </div>
+    } @else if (error) {
+    <div class="error">
+        <p>{{ error }}</p>
+    </div>
+    } @else {
+    <!-- Secció de Pokemons sense Like -->
+    <section class="pokemon-section">
+        <h2>Pokemons Disponibles</h2>
+        <div class="pokemon-grid">
+            @for (pokemon of pokemons; track pokemon.id) {
+            @if (!pokemon.liked) {
+            <app-pokemon [pokemon]="pokemon" (pokemonChanged)="updatePokemon($event)">
+            </app-pokemon>
+            }
+            }
+        </div>
+    </section>
+    }
+</div>

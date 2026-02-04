@@ -1,0 +1,24 @@
+<div class="container">
+    <div class="header">
+        <a routerLink="/">Tornar</a>
+        <h1>ELS MEUS FAVORITS</h1>
+    </div>
+    @if (favorites$ | async; as favorites) {
+    @if (favorites.length === 0) {
+    <p class="empty">No tens favorits encara 
+        <a routerLink="/">Afegir Pokemons</a>
+    </p>
+    
+    } @else {
+    <div>
+        <p>Tens {{favorites.length}} favorits</p>
+    </div>
+    <div class="pokemon-grid">
+        @for (fav of favorites; track fav.id) {
+        <app-pokemon [pokemon]="fav" (pokemonChanged)="updatePokemon($event)">
+        </app-pokemon>
+        }
+    </div>
+    }
+    }
+</div>
