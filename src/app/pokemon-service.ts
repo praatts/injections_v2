@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { PokemonInterface } from './pokemon';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, catchError, map, Observable, of } from 'rxjs';
+import { BehaviorSubject, catchError, map, Observable, of, pipe, tap, timestamp } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -18,6 +18,26 @@ export class PokemonService {
     this.favorites$ = this.favoritesSubject.asObservable();
   }
 
+  saveFavouritesToServer(pokemon: PokemonInterface): Observable<any> {
+    console.log('Enviant POST al server...');
+    //Api de testing (que accepta qualsevol POST)
+    //JSONPlaceholder - API de testing que sempre funciona
+    return this.httpClient.post('https://jsonplaceholder.typicode.com/posts', {
+      pokemonId: pokemon.id,
+      pokemonName: pokemon.name,
+      timestamp: new Date().toISOString()
+    }).pipe(
+      tap(response => {
+        console.log('Resposta del server: ', response);
+      }),
+      catchError(error => {
+        console.error('Error al guardar en el servidor', error);
+        return of(null);
+      })
+    );
+  }
+
+
   addToFavourites(pokemon: PokemonInterface): void {
     console.log('Intentant afegir als favorits: ', pokemon.name);
 
@@ -31,13 +51,32 @@ export class PokemonService {
       return;
     }
 
-    pokemon.liked = true;
-    this.updatePokemons(pokemon);
+    //GUARDAR AL SERVIDOR
 
-    //crear el nou array amb el pokemon afegit
-    const updatedFavorites = [...currentFavorites, pokemon];
-    this.favoritesSubject.next(updatedFavorites);
-    console.log('Afegit als favorits!!!!! TOTAL:', updatedFavorites.length);
+    this.saveFavouritesToServer(pokemon).subscribe({
+      next: (response) => {
+        if (response) {
+          console.log('Guardat al servidor, llavors actualitzem localment');
+
+          //només si el POST ha sigut exitós
+          pokemon.liked = true;
+          this.updatePokemons(pokemon);
+
+          //crear el nou array amb el pokemon afegit
+          const updatedFavorites = [...currentFavorites, pokemon];
+          this.favoritesSubject.next(updatedFavorites);
+          console.log('Afegit als favorits!!!!! TOTAL:', updatedFavorites.length);
+
+        } else {
+          console.error('No s\'ha pogut afegir al servidor');
+          alert('Error guardant el favorit');
+        }
+      },
+      error: (err) => {
+        console.error('Error crític', err);
+        alert ('Error de connexió');
+      }
+    });
   }
 
   removeFromFavourites(pokemonId: number): void {

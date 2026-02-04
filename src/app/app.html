@@ -1,7 +1,15 @@
 <div class="container">
   <!-- Títol de l'aplicació -->
-  <h1>Pokédex</h1>
-  
+  <div class="header">
+    <h1>Pokédex</h1>
+    <a routerLink="/favorits" class="btn-favorites">
+      if (favorites$ | async; as favorites) {
+      Els meus favorits ({{favorites.length}})
+      } @else {
+      Els meus favorits (0)
+      }
+    </a>
+  </div>
   <!-- <button (click)="demoSenseTransformar()">
     Veure dades originals (sense transformar)
   </button>
@@ -14,29 +22,26 @@
   <!-- Cerca amb FormGroup -->
   <div class="search-box">
     <form [formGroup]="searchForm">
-      <input 
-        type="text" 
-        formControlName="searchTerm"
-        placeholder="Cerca pokémon (mínim 2 lletres)..."
+      <input type="text" formControlName="searchTerm" placeholder="Cerca pokémon (mínim 2 lletres)..."
         class="search-input">
-      
+
       <!-- Mostrar error de validació -->
       @if (searchTermControl?.invalid && searchTermControl?.touched) {
-        <p class="error-msg">Mínim 2 caràcters</p>
+      <p class="error-msg">Mínim 2 caràcters</p>
       }
     </form>
-    
+
     @if (searching) {
-      <p class="searching">Cercant...</p>
+    <p class="searching">Cercant...</p>
     }
-    
+
     @if (searchResult) {
-      <div class="result">
-        <h3>Resultat:</h3>
-        <app-pokemon [pokemon]="searchResult"></app-pokemon>
-      </div>
+    <div class="result">
+      <h3>Resultat:</h3>
+      <app-pokemon [pokemon]="searchResult"></app-pokemon>
+    </div>
     } @else if (searchTermControl?.valid && !searching && searchTermControl?.value) {
-      <p class="no-result">No s'ha trobat cap Pokémon amb aquest nom</p>
+    <p class="no-result">No s'ha trobat cap Pokémon amb aquest nom</p>
     }
   </div>
 
@@ -50,45 +55,41 @@
   </div>
   } @else {
   <!-- Secció de Pokemons sense Like -->
-    <section class="pokemon-section">
-      <h2>Pokemons Disponibles</h2>
-      <div class="pokemon-grid">
-        @for (pokemon of pokemons; track pokemon.id) {
-        @if (!pokemon.liked) {
-          <app-pokemon 
-          [pokemon]="pokemon" 
-          (pokemonChanged)="updatePokemon($event)">
-          </app-pokemon>
-          }
-        }
-      </div>
-    </section>
-
-    <!-- Favorits amb async pipe i BehaviorSubject -->
-    <section class="pokemon-section">
-      <h2>Els meus Favorits</h2>
-      
-      @if (favorites$ | async; as favorites) {
-        @if (favorites.length === 0) {
-          <p class="empty">No tens favorits encara </p>
-        } @else {
-          <div>
-            <p>Tens {{favorites.length}} favorits</p>
-          </div>
-          <div class="pokemon-grid">
-            @for (fav of favorites; track fav.id) {
-              <app-pokemon 
-                [pokemon]="fav"
-                (pokemonChanged)="updatePokemon($event)">
-              </app-pokemon>
-            }
-          </div>
-        }
+  <section class="pokemon-section">
+    <h2>Pokemons Disponibles</h2>
+    <div class="pokemon-grid">
+      @for (pokemon of pokemons; track pokemon.id) {
+      @if (!pokemon.liked) {
+      <app-pokemon [pokemon]="pokemon" (pokemonChanged)="updatePokemon($event)">
+      </app-pokemon>
       }
-    </section>
+      }
+    </div>
+  </section>
 
-    <!-- Secció de Pokemons amb Like -->
-     <!--
+  <!-- Favorits amb async pipe i BehaviorSubject -->
+  <section class="pokemon-section">
+    <h2>Els meus Favorits</h2>
+
+    @if (favorites$ | async; as favorites) {
+    @if (favorites.length === 0) {
+    <p class="empty">No tens favorits encara </p>
+    } @else {
+    <div>
+      <p>Tens {{favorites.length}} favorits</p>
+    </div>
+    <div class="pokemon-grid">
+      @for (fav of favorites; track fav.id) {
+      <app-pokemon [pokemon]="fav" (pokemonChanged)="updatePokemon($event)">
+      </app-pokemon>
+      }
+    </div>
+    }
+    }
+  </section>
+
+  <!-- Secció de Pokemons amb Like -->
+  <!--
     <section class="pokemon-section">
       <h2>Pokemons amb Like</h2>
       <div class="pokemon-grid">
